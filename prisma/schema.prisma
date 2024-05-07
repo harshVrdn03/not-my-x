@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Use a stronger hashing mechanism for passwords (replace "bcrypt" with your chosen library)
+model User {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  username String  @unique
+  email    String  @unique
+  password String
+  image    String?
+
+  posts     Post[]
+  Comment   Comment[]
+  Like      Like[]
+  following String[]  @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Post {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String?   @db.ObjectId
+  content  String?
+  imageUrl String?
+  comments Comment[]
+  likes    Like[]
+  User     User?     @relation(fields: [userId], references: [id])
+}
+
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment String
+  userId  String @db.ObjectId
+  postId  String @db.ObjectId
+  user    User   @relation(fields: [userId], references: [id])
+  post    Post   @relation(fields: [postId], references: [id])
+}
+
+model Like {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  postId String @db.ObjectId
+
+  // relations
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
