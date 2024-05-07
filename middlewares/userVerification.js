@@ -9,7 +9,7 @@ const userVerification = async (req, res, next) => {
       throw new Error("Authorization token is missing");
     }
 
-    const decodedToken = jwt.verify(token, "harsh"); // Use environment variable for JWT secret
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY); // Use environment variable for JWT secret
     const user = await prisma.user.findUnique({
       where: {
         id: decodedToken.userId,
